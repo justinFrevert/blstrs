@@ -7,7 +7,7 @@ use core::{
     convert::TryInto,
     fmt,
     iter::{Product, Sum},
-    ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign},
+    ops::{Add, AddAssign, Deref, Mul, MulAssign, Neg, Sub, SubAssign},
 };
 
 use blst::*;
@@ -16,6 +16,8 @@ use ff::{Field, FieldBits, PrimeField, PrimeFieldBits};
 use rand_core::RngCore;
 use subtle::{Choice, ConditionallySelectable, ConstantTimeEq, CtOption};
 
+use num_traits::One;
+
 /// Represents an element of the scalar field $\mathbb{F}_q$ of the BLS12-381 elliptic
 /// curve construction.
 ///
@@ -23,6 +25,20 @@ use subtle::{Choice, ConditionallySelectable, ConstantTimeEq, CtOption};
 #[derive(Default, Clone, Copy)]
 #[repr(transparent)]
 pub struct Scalar(pub(crate) blst_fr);
+
+impl One for Scalar {
+    fn is_one(&self) -> bool
+        where
+            Self: PartialEq, {
+                self.ct_eq(&Self::ONE).unwrap_u8() == 1
+    }
+    fn one() -> Self {
+        Self::ONE
+    }
+    fn set_one(&mut self) {
+        
+    }
+}
 
 // GENERATOR = 7 (multiplicative generator of r-1 order, that is also quadratic nonresidue)
 const GENERATOR: Scalar = Scalar(blst_fr {
